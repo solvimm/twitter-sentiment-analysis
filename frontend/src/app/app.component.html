@@ -1,0 +1,80 @@
+<div class="container">
+  <!-- <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/bar-chart">Bar Chart</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/doughnut-chart">Doughnut Chart</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/radar-chart">Radar Chart</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/pie-chart">Pie Chart</a>
+    </li>
+  </ul> -->
+
+  <!-- <div>
+    <router-outlet></router-outlet>
+  </div> -->
+
+  <div id="loading-background" *ngIf="loading">
+
+    <div class="center-screen">
+        <div><p>Aguarde uns instantes enquanto processamos a sua requisição. Isso pode levar alguns minutos.</p></div>
+        <div><img id="loading-image" src="/src/images/loading.gif"></div>
+    </div>
+
+  </div>
+
+
+  <div class="row" fxLayout="row wrap" fxLayoutGap="0px" fxLayoutAlign="flex-start">
+    <h3>Demonstração de Análise de Texto</h3>
+    <p>Demonstração de análise de sentimento em texto desenvolvida por Filipe Barretto e Bernardo Costa, da <a href="https://solvimm.com" target="_blank">Solvimm</a>.</p>
+    <p>Faça uma busca por uma @ ou # no Twitter para analisar o sentimento dos tweets, bem como que pessoas ou empresas são mencionadas nas postagens. Por exemplo, você pode buscar por @neymarjr ou por #férias, para ver o que tem sido falado, ou pela pessoa, ou na #.</p>
+  </div>
+
+  <div class="row">
+    <input id="search" type="text" [(ngModel)]="search_element">
+    <button type="button" value="Get Sentiment" (click)="getSentiment()" class="btn btn-primary btn-lg">Analisar</button>
+  </div>
+
+  <!-- <div>
+    <form class="example-form">
+        <mat-form-field class="example-full-width">
+        <mat-label>Favorite food</mat-label>
+        <input matInput placeholder="Ex. Pizza" value="Sushi">
+        </mat-form-field>
+    
+        <mat-form-field class="example-full-width">
+        <mat-label>Leave a comment</mat-label>
+        <textarea matInput placeholder="Ex. It makes me feel..."></textarea>
+        </mat-form-field>
+    </form>
+    </div> -->
+
+  <div class="chart-row" fxLayout="row wrap" fxLayoutGap="0px" fxLayoutAlign="flex-start">
+    <div fxFlex="40" fxFlex-xs="100">
+        <app-my-doughnut-chart *ngIf="data_loaded" [labels]="sentimentLabels" [data]="sentimentData" [colors]="sentimentColors"></app-my-doughnut-chart>
+    </div>
+    <div fxFlex="30" fxFlex-xs="100">
+        <app-my-doughnut-chart *ngIf="data_loaded" [labels]="languageLabels" [data]="languageData" [colors]="languageColors"></app-my-doughnut-chart>
+    </div>
+    <div fxFlex="30" fxFlex-xs="100">
+        <angular-tag-cloud *ngIf="data_loaded" [config]="cloudOptions" [data]="cloudData"></angular-tag-cloud>
+    </div>
+</div>
+
+<div class="chart-row" fxLayout="row wrap" fxLayoutGap="0px" fxLayoutAlign="flex-start">
+    <div fxFlex="50" fxFlex-xs="100">
+        <app-my-bar-chart *ngIf="data_loaded" [labels]="peopleLabels" [data]="peopleData"></app-my-bar-chart>
+    </div>
+    <div fxFlex="50" fxFlex-xs="100">
+        <app-my-bar-chart *ngIf="data_loaded" [labels]="organizationLabels" [data]="organizationData"></app-my-bar-chart>
+    </div>
+</div>
+  
+
+</div>
+
+

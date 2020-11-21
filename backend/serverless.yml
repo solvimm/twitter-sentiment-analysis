@@ -1,0 +1,117 @@
+service: twitter-analysis-demo
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+
+frameworkVersion: ">=1.34.0 <2.0.0"
+
+provider:
+  name: aws
+  profile: twitter-analysis-demo
+  runtime: python3.7
+  stage: ${opt:stage, 'dev'}
+  region: us-east-1
+  deploymentBucket: ${self:custom.deployment_bucket}
+
+# you can overwrite defaults here
+#  stage: dev
+#  region: us-east-1
+
+# you can add statements to the Lambda function's IAM Role here
+#  iamRoleStatements:
+#    - Effect: "Allow"
+#      Action:
+#        - "s3:ListBucket"
+#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+#    - Effect: "Allow"
+#      Action:
+#        - "s3:PutObject"
+#      Resource:
+#        Fn::Join:
+#          - ""
+#          - - "arn:aws:s3:::"
+#            - "Ref" : "ServerlessDeploymentBucket"
+#            - "/*"
+
+# you can define service wide environment variables here
+#  environment:
+#    variable1: value1
+
+# you can add packaging information here
+#package:
+#  include:
+#    - include-me.py
+#    - include-me-dir/**
+#  exclude:
+#    - exclude-me.py
+#    - exclude-me-dir/**
+
+functions:
+  tweets_analysis_handler:
+    handler: src/handler.main
+    description: Reads array of tweets to detect sentiment using Amazon Comprehend
+    memorySize: 512
+    timeout: 120
+    environment:
+      ENV: 'environment'
+    events:
+      - http:
+          path: sentiment
+          method: get
+          integration: lambda
+          cors: true
+    iamRoleStatementsName: ${self:service}-twitter-sentiment-analysis-role-${self:custom.stage}
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - lambda:GetLayerVersion
+          - lambda:PublishLayerVersion
+        Resource: "*"
+      - Effect: "Allow"
+        Action:
+          - "logs:CreateLogGroup"
+          - "logs:CreateLogStream"
+          - "logs:PutLogEvents"
+        Resource: "arn:aws:logs:*:*:*"
+      - Effect: "Allow"
+        Action:
+          - "secretsmanager:GetResourcePolicy"
+          - "secretsmanager:GetSecretValue"
+          - "secretsmanager:DescribeSecret"
+          - "secretsmanager:ListSecretVersionIds"
+        Resource: arn:aws:secretsmanager:us-east-1:302751520979:secret:twitter_sentiment_analysis-ISDx8S
+      - Effect: "Allow"
+        Action:
+          - "comprehend:DetectEntities"
+          - "comprehend:DetectDominantLanguage"
+          - "comprehend:DetectSentiment"
+        Resource: "*"
+
+package:
+  individually: true
+  exclude:
+    - node_modules/**
+
+resources:  
+  Description: Automatically created by Serverless Framework
+
+  
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+  stage: ${opt:stage, self:provider.stage}
+  region: ${opt:region, self:provider.region}
+  user_name: filipebarretto
+  account_id: ${file(./customjs/custom-account-id.js):getAccountId}
+  deployment_bucket: ${self:custom.account_id}-${self:service}-${self:provider.stage}
+  
+  
+plugins:
+  - serverless-python-requirements
+  - serverless-iam-roles-per-function
+  - serverless-plugin-create-deployment-bucket
+  - serverless-pseudo-parameters
